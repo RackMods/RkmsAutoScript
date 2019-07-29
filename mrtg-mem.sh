@@ -7,5 +7,4 @@ UP=`uptime`
 echo $FREE
 echo $SWAP
 echo $UP
-echo "shigeno"
-
+echo "rackmods"
