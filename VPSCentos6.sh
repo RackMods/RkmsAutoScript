@@ -1,6 +1,6 @@
 #!/bin/bash
 # Created by https://www.hostingtermurah.net
-# Modified by rackmods
+# Modified by RadzVPN
 
 #Requirement
 if [ ! -e /usr/bin/curl ]; then
@@ -33,12 +33,12 @@ sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
 sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.d/rc.local
 
 #Add DNS Server ipv4
-echo "nameserver 8.8.8.8" > /etc/resolv.conf
-echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-sed -i '$ i\echo "nameserver 8.8.8.8" > /etc/resolv.conf' /etc/rc.local
-sed -i '$ i\echo "nameserver 8.8.4.4" >> /etc/resolv.conf' /etc/rc.local
-sed -i '$ i\echo "nameserver 8.8.8.8" > /etc/resolv.conf' /etc/rc.d/rc.local
-sed -i '$ i\echo "nameserver 8.8.4.4" >> /etc/resolv.conf' /etc/rc.d/rc.local
+echo "nameserver 1.1.1.1" > /etc/resolv.conf
+echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+sed -i '$ i\echo "nameserver 1.1.1.1" > /etc/resolv.conf' /etc/rc.local
+sed -i '$ i\echo "nameserver 1.0.0.1" >> /etc/resolv.conf' /etc/rc.local
+sed -i '$ i\echo "nameserver 1.1.1.1" > /etc/resolv.conf' /etc/rc.d/rc.local
+sed -i '$ i\echo "nameserver 1.0.0.1" >> /etc/resolv.conf' /etc/rc.d/rc.local
 
 # install wget and curl
 yum -y install wget curl
@@ -50,10 +50,10 @@ rpm -Uvh epel-release-6-8.noarch.rpm
 rpm -Uvh remi-release-6.rpm
 
 if [ "$OS" == "x86_64" ]; then
-  wget https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+  wget https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
   rpm -Uvh rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
 else
-  wget https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/rpmforge-release-0.5.3-1.el6.rf.i686.rpm
+  wget https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/rpmforge-release-0.5.3-1.el6.rf.i686.rpm
   rpm -Uvh rpmforge-release-0.5.3-1.el6.rf.i686.rpm
 fi
 
@@ -96,7 +96,7 @@ chkconfig vnstat on
 
 # install screenfetch
 cd
-wget -O /usr/bin/screenfetch "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/screenfetch"
+wget -O /usr/bin/screenfetch "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/screenfetch"
 chmod +x /usr/bin/screenfetch
 echo "clear" >> .bash_profile
 echo "screenfetch" >> .bash_profile
@@ -106,17 +106,21 @@ cd
 yum -y install nginx
 cat > /etc/nginx/nginx.conf <<END3
 user www-data;
+
 worker_processes 1;
 pid /var/run/nginx.pid;
+
 events {
 	multi_accept on;
   worker_connections 1024;
 }
+
 http {
 	gzip on;
 	gzip_vary on;
 	gzip_comp_level 5;
 	gzip_types    text/plain application/x-javascript text/xml text/css;
+
 	autoindex on;
   sendfile on;
   tcp_nopush on;
@@ -131,9 +135,12 @@ http {
   client_max_body_size 32M;
 	client_header_buffer_size 8m;
 	large_client_header_buffers 8 8m;
+
 	fastcgi_buffer_size 8m;
 	fastcgi_buffers 8 8m;
+
 	fastcgi_read_timeout 600;
+
   include /etc/nginx/conf.d/*.conf;
 }
 END3
@@ -153,10 +160,12 @@ server {
   access_log /var/log/nginx/vps-access.log;
   error_log /var/log/nginx/vps-error.log error;
   root   /home/vps/public_html;
+
   location / {
     index  index.html index.htm index.php;
     try_files $uri $uri/ /index.php?$args;
   }
+
   location ~ \.php$ {
     include /etc/nginx/fastcgi_params;
     fastcgi_pass  127.0.0.1:9000;
@@ -164,6 +173,7 @@ server {
     fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
   }
 }
+
 END4
 sed -i 's/apache/nginx/g' /etc/php-fpm.d/www.conf
 chmod -R +rx /home/vps
@@ -171,14 +181,14 @@ service php-fpm restart
 service nginx restart
 
 # install openvpn
-wget -O /etc/openvpn/openvpn.tar "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/openvpn-centos.tar"
+wget -O /etc/openvpn/openvpn.tar "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/openvpn-debian.tar"
 cd /etc/openvpn/
 tar xf openvpn.tar
-wget -O /etc/openvpn/1194.conf "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/1194-centos.conf"
+wget -O /etc/openvpn/1194.conf "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/1194-centos.conf"
 if [ "$OS" == "x86_64" ]; then
-  wget -O /etc/openvpn/1194.conf "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/1194-centos64.conf"
+  wget -O /etc/openvpn/1194.conf "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/1194-centos64.conf"
 fi
-wget -O /etc/iptables.up.rules "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/iptables.up.rules"
+wget -O /etc/iptables.up.rules "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/iptables.up.rules"
 sed -i '$ i\iptables-restore < /etc/iptables.up.rules' /etc/rc.local
 sed -i '$ i\iptables-restore < /etc/iptables.up.rules' /etc/rc.d/rc.local
 MYIP=`dig +short myip.opendns.com @resolver1.opendns.com`;
@@ -194,9 +204,16 @@ cd
 
 # configure openvpn client config
 cd /etc/openvpn/
-wget -O /etc/openvpn/client.ovpn "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/open-vpn.conf"
-sed -i $MYIP2 /etc/openvpn/client.ovpn;
-cp client.ovpn /home/vps/public_html/
+wget -O /etc/openvpn/1194-client.ovpn "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/open-vpn.conf"
+sed -i $MYIP2 /etc/openvpn/1194-client.ovpn;
+PASS=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n 1`;
+useradd -M -s /bin/false Radz
+echo "Radz:$PASS" | chpasswd
+echo "Radz" > pass.txt
+echo "$PASS" >> pass.txt
+tar cf client.tar 1194-client.ovpn pass.txt
+cp client.tar /home/vps/public_html/
+cp 1194-client.ovpn /home/vps/public_html/
 cd
 
 #install PPTP
@@ -209,8 +226,8 @@ refuse-chap
 refuse-mschap
 require-mschap-v2
 require-mppe-128
-ms-dns 8.8.8.8
-ms-dns 8.8.4.4
+ms-dns 1.1.1.1
+ms-dns 1.0.0.1
 proxyarp
 nodefaultroute
 lock
@@ -228,9 +245,9 @@ mkdir /var/lib/premium-script
 chkconfig pptpd on
 
 # install badvpn
-wget -O /usr/bin/badvpn-udpgw "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/badvpn-udpgw"
+wget -O /usr/bin/badvpn-udpgw "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/badvpn-udpgw"
 if [ "$OS" == "x86_64" ]; then
-  wget -O /usr/bin/badvpn-udpgw "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/badvpn-udpgw64"
+  wget -O /usr/bin/badvpn-udpgw "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/badvpn-udpgw64"
 fi
 sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300' /etc/rc.local
 sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300' /etc/rc.d/rc.local
@@ -239,15 +256,15 @@ screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
 
 # install mrtg
 cd /etc/snmp/
-wget -O /etc/snmp/snmpd.conf "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/snmpd.conf"
-wget -O /root/mrtg-mem.sh "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/mrtg-mem.sh"
+wget -O /etc/snmp/snmpd.conf "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/snmpd.conf"
+wget -O /root/mrtg-mem.sh "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/mrtg-mem.sh"
 chmod +x /root/mrtg-mem.sh
 service snmpd restart
 chkconfig snmpd on
 snmpwalk -v 1 -c public localhost | tail
 mkdir -p /home/vps/public_html/mrtg
 cfgmaker --zero-speed 100000000 --global 'WorkDir: /home/vps/public_html/mrtg' --output /etc/mrtg/mrtg.cfg public@localhost
-curl "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/mrtg.conf" >> /etc/mrtg.cfg
+curl "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/mrtg.conf" >> /etc/mrtg.cfg
 sed -i 's/WorkDir: \/var\/www\/mrtg/# WorkDir: \/var\/www\/mrtg/g' /etc/mrtg/mrtg.cfg
 sed -i 's/# Options\[_\]: growright, bits/Options\[_\]: growright/g' /etc/mrtg/mrtg.cfg
 indexmaker --output=/home/vps/public_html/mrtg/index.html /etc/mrtg/mrtg.cfg
@@ -266,14 +283,14 @@ chkconfig sshd on
 
 # install dropbear
 yum -y install dropbear
-echo "OPTIONS=\"-p 109 -p 110 -p 442\"" > /etc/sysconfig/dropbear
+echo "OPTIONS=\"-p 109 -p 110 -p 443\"" > /etc/sysconfig/dropbear
 echo "/bin/false" >> /etc/shells
 service dropbear restart
 chkconfig dropbear on
 
 # install vnstat gui
 cd /home/vps/public_html/
-wget https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/vnstat_php_frontend-1.5.1.tar.gz
+wget https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/vnstat_php_frontend-1.5.1.tar.gz
 tar xf vnstat_php_frontend-1.5.1.tar.gz
 rm vnstat_php_frontend-1.5.1.tar.gz
 mv vnstat_php_frontend-1.5.1 vnstat
@@ -318,7 +335,7 @@ http_access allow manager localhost
 http_access deny manager
 http_access allow localnet
 http_access allow localhost
-http_access allow all
+http_access deny all
 http_port 8888
 http_port 8080
 http_port 8000
@@ -330,19 +347,19 @@ refresh_pattern ^ftp: 1440 20% 10080
 refresh_pattern ^gopher: 1440 0% 1440
 refresh_pattern -i (/cgi-bin/|\?) 0 0% 0
 refresh_pattern . 0 20% 4320
-visible_hostname rackmods
+visible_hostname Radz
 END
 sed -i $MYIP2 /etc/squid/squid.conf;
 service squid restart
 chkconfig squid on
 
 # install stunnel
-yum install stunnel
-wget -O /etc/pki/tls/certs/stunnel.pem "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/stunnel.pem"
-wget -O /etc/stunnel/stunnel.conf "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/stunnel.conf"
-mkdir /var/run/stunnel
-chown nobody:nobody /var/run/stunnel
-stunnel /etc/stunnel/stunnel.conf
+#yum install stunnel
+#wget -O /etc/pki/tls/certs/stunnel.pem "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/stunnel.pem"
+#wget -O /etc/stunnel/stunnel.conf "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/stunnel.conf"
+#mkdir /var/run/stunnel
+#chown nobody:nobody /var/run/stunnel
+#stunnel /etc/stunnel/stunnel.conf
 
 # install ddos deflate
 cd
@@ -355,7 +372,7 @@ rm -rf /root/master.zip
 
 # setting banner
 rm /etc/issue.net
-wget -O /etc/issue.net "https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/issue.net"
+wget -O /etc/issue.net "https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/issue.net"
 sed -i 's@#Banner@Banner@g' /etc/ssh/sshd_config
 sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
 service ssh restart
@@ -363,10 +380,10 @@ service dropbear restart
 
 # install webmin
 cd
-wget "http://prdownloads.sourceforge.net/webadmin/webmin-1.881-1.noarch.rpm"
+wget "http://prdownloads.sourceforge.net/webadmin/webmin-1.890-1.noarch.rpm"
 yum -y install perl perl-Net-SSLeay openssl perl-IO-Tty perl-Encode-Detect
-rpm -i webmin-1.881-1.noarch.rpm;
-rm webmin-1.881-1.noarch.rpm
+rpm -i webmin-1.890-1.noarch.rpm;
+rm webmin-1.890-1.noarch.rpm
 sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
 service webmin restart
 chkconfig webmin on
@@ -389,6 +406,7 @@ cat > /etc/iptables.up.rules <<-END
 -A OUTPUT -d 103.52.146.66 -j DROP
 -A OUTPUT -d 5.189.172.204 -j DROP
 COMMIT
+
 *nat
 :PREROUTING ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
@@ -407,14 +425,14 @@ yum -y install bmon
 
 # download script
 cd
-wget https://raw.githubusercontent.com/RackMods/RkmsAutoScript/master/install-premiumscript.sh -O - -o /dev/null|sh
+wget https://raw.githubusercontent.com/radzvpn/PanelxServer-Centos6-master/master/install-premiumscripts.sh -O - -o /dev/null|sh
 
 # cron
 service crond start
 chkconfig crond on
 
 # set time GMT +8
-ln -fs /usr/share/zoneinfo/Asia/Manila /etc/localtime
+ln -fs /usr/share/zoneinfo/Asia/Malaysia /etc/localtime
 
 # finalizing
 chown -R nginx:nginx /home/vps/public_html
@@ -442,10 +460,8 @@ echo " "
 echo "INSTALLATION COMPLETE!"
 echo " "
 echo "--------------------------- Setup Server Information ---------------------------"
-echo "                         Copyright HostingTermurah.net                          "
-echo "                        https://www.hostingtermurah.net                         "
-echo "               Created By Steven Indarto(fb.com/stevenindarto2)                 "
-echo "                              Modified by rackmods                               "
+echo "                         Copyright RadzVPN 2019                                 "
+echo "                              Made with 💖 by RadzVPN                            "
 echo "--------------------------------------------------------------------------------"
 echo ""  | tee -a log-install.txt
 echo "Server Included"  | tee -a log-install.txt
@@ -486,5 +502,4 @@ echo "   - Vnstat                  : http://$MYIP:85/vnstat/"  | tee -a log-inst
 echo "   - MRTG                    : http://$MYIP:85/mrtg/"  | tee -a log-install.txt
 echo "   - Installation Log        : cat /root/log-install.txt"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
-echo "----------- Script Created By Steven Indarto(fb.com/stevenindarto2) ------------"
-echo "------------------------------ Modified by rackmods -----------------------------"
+echo "------------------------------ Made with Love by RadzVPN -----------------------------"
